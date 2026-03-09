@@ -1,0 +1,1630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Khatm al-Quran — Complete the Quran</title>
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-GPQQX56JVP"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-GPQQX56JVP');
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Scheherazade+New:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f9f5ee;
+  --surface: #fffdf8;
+  --surface2: #f2ece0;
+  --border: rgba(0,0,0,0.07);
+  --border-gold: rgba(180,130,40,0.28);
+  --gold: #b07820;
+  --gold-bright: #8a5a0a;
+  --gold-dim: #d4a83a;
+  --gold-btn: #c8961e;
+  --gold-btn-light: #e8c060;
+  --text: #1a1206;
+  --text-muted: rgba(26,18,6,0.42);
+  --text-dim: rgba(26,18,6,0.62);
+  --green: #2a7050;
+  --green-dim: rgba(42,112,80,0.12);
+  --ruby: #8b2020;
+  --r: 8px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'EB Garamond', Georgia, serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+/* Background geometric pattern */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle at 20% 50%, rgba(196,160,80,0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(42,122,80,0.04) 0%, transparent 40%),
+    url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23a06820' fill-opacity='0.03'%3E%3Cpath d='M30 0l30 30-30 30L0 30z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* SCREENS - each is a full isolated page */
+.screen {
+  display: none;
+  position: fixed;
+  inset: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 1;
+}
+.screen.active { display: block; }
+
+/* ===== SCREEN 1: SETUP ===== */
+#setupScreen {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 20px 40px;
+  min-height: 100%;
+  background: var(--bg);
+}
+#setupScreen.active { display: flex; }
+
+.brand {
+  text-align: center;
+  margin-bottom: 24px;
+  animation: fadeUp 0.8s ease both;
+}
+
+.brand-arabic {
+  font-family: 'Scheherazade New', serif;
+  font-size: 2.4rem;
+  color: var(--gold);
+  text-shadow: 0 0 40px rgba(160,110,40,0.15);
+  display: block;
+  margin-bottom: 4px;
+  direction: rtl;
+}
+
+.brand-title {
+  font-family: 'Cinzel', serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-top: 4px;
+}
+
+.brand-sub {
+  font-size: 0.95rem;
+  font-style: italic;
+  color: var(--text-dim);
+  margin-top: 3px;
+  font-family: 'EB Garamond', serif;
+}
+
+.setup-card {
+  background: var(--surface);
+  border: 1px solid var(--border-gold);
+  border-radius: 14px;
+  padding: 28px 32px;
+  width: 100%;
+  max-width: 600px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.10), 0 0 0 1px rgba(160,110,40,0.08);
+  animation: fadeUp 0.8s 0.1s ease both;
+}
+
+.form-section {
+  margin-bottom: 18px;
+}
+
+.form-label {
+  display: block;
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 7px;
+}
+
+/* Option pills */
+.option-group {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.option-pill {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  padding: 6px 13px;
+  border-radius: 40px;
+  cursor: pointer;
+  font-family: 'EB Garamond', serif;
+  font-size: 0.95rem;
+  transition: all 0.18s;
+  user-select: none;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.option-pill:hover { border-color: var(--gold-dim); color: var(--text); }
+.option-pill.selected {
+  background: rgba(196,160,80,0.12);
+  border-color: var(--gold);
+  color: var(--gold-bright);
+  box-shadow: 0 0 10px rgba(196,160,80,0.1);
+}
+
+/* Custom input inline */
+.custom-freq-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.custom-freq-row input {
+  width: 52px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 5px 8px;
+  border-radius: 8px;
+  font-family: 'EB Garamond', serif;
+  font-size: 0.95rem;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.18s;
+}
+
+.custom-freq-row input:focus { border-color: var(--gold); }
+.custom-freq-row span { color: var(--text-muted); font-size: 0.82rem; font-family: 'EB Garamond', serif; white-space: nowrap; }
+
+/* pill + custom on same line */
+.pills-with-custom {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+/* Date input */
+.date-input {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 7px 12px;
+  border-radius: 8px;
+  font-family: 'EB Garamond', serif;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.18s;
+  cursor: pointer;
+}
+
+.date-input:focus { border-color: var(--gold); }
+.date-input::-webkit-calendar-picker-indicator { filter: invert(0.4); cursor: pointer; }
+
+/* Two-column row for date + tafsir */
+.inline-row {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.inline-field { display: flex; flex-direction: column; gap: 5px; }
+
+/* Toggle row */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.toggle-label { font-family: 'EB Garamond', serif; font-size: 0.95rem; color: var(--text-dim); letter-spacing: 0.02em; }
+.toggle-sub { display: none; }
+
+.toggle {
+  width: 38px; height: 21px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.2s, border-color 0.2s;
+  flex-shrink: 0;
+}
+
+.toggle.on { background: rgba(196,160,80,0.2); border-color: var(--gold); }
+.toggle::after {
+  content: '';
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 13px; height: 13px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  transition: transform 0.2s, background 0.2s;
+}
+.toggle.on::after { transform: translateX(17px); background: var(--gold); }
+
+/* Summary box */
+.summary-box {
+  background: rgba(196,160,80,0.06);
+  border: 1px solid var(--border-gold);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 18px;
+  display: none;
+}
+
+.summary-box.visible { display: block; }
+
+.summary-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 3px 0;
+}
+
+.summary-line + .summary-line { border-top: 1px solid rgba(196,160,80,0.1); margin-top: 4px; padding-top: 6px; }
+
+.summary-key { font-size: 0.68rem; color: var(--text-muted); font-family: 'Cinzel', serif; letter-spacing: 0.1em; }
+.summary-val { font-size: 1rem; color: var(--gold); font-family: 'EB Garamond', serif; font-weight: 500; }
+
+/* Generate button */
+.btn-generate {
+  width: 100%;
+  background: linear-gradient(135deg, #c8961e 0%, #e8c060 40%, #f0d080 60%, #c8961e 100%);
+  background-size: 200% 100%;
+  border: none;
+  color: #3a2200;
+  padding: 17px;
+  border-radius: 10px;
+  font-family: 'Cinzel', serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-position 0.5s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 4px 20px rgba(200,150,30,0.35), inset 0 1px 0 rgba(255,255,255,0.3);
+  text-shadow: 0 1px 2px rgba(255,220,100,0.4);
+}
+
+.btn-generate:hover:not(:disabled) {
+  background-position: 100% 0;
+  box-shadow: 0 6px 28px rgba(200,150,30,0.5), inset 0 1px 0 rgba(255,255,255,0.4);
+  transform: translateY(-1px);
+}
+
+.btn-generate:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* ===== SCREEN 2: LOADING ===== */
+#loadingScreen {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: center;
+  min-height: 100%;
+  background: var(--bg);
+}
+#loadingScreen.active { display: flex; }
+
+.loading-arabic {
+  font-family: 'Scheherazade New', serif;
+  font-size: 2.5rem;
+  color: var(--gold);
+  margin-bottom: 32px;
+  direction: rtl;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.progress-track {
+  width: 340px;
+  height: 3px;
+  background: var(--surface2);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold-dim), var(--gold-bright));
+  border-radius: 2px;
+  width: 0%;
+  transition: width 0.3s ease;
+}
+
+.loading-status {
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* ===== SCREEN 3: RESULTS ===== */
+#resultsScreen { padding: 0; background: var(--bg); }
+
+.results-header {
+  background: linear-gradient(180deg, var(--surface) 0%, transparent 100%);
+  border-bottom: 1px solid var(--border-gold);
+  padding: 32px 48px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.results-title { 
+  font-family: 'Cinzel', serif;
+  font-size: 1.2rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--text);
+}
+
+.results-title span { color: var(--gold); }
+
+.results-actions { display: flex; gap: 10px; align-items: center; }
+
+.btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-family: 'EB Garamond', serif;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.18s;
+  border: 1px solid var(--border-gold);
+  background: transparent;
+  color: var(--gold);
+}
+
+.btn:hover { background: rgba(196,160,80,0.1); }
+.btn.primary {
+  background: rgba(196,160,80,0.15);
+  border-color: var(--gold);
+}
+.btn.primary:hover { background: rgba(196,160,80,0.25); }
+
+.btn-back {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  cursor: pointer;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 8px 0;
+  transition: color 0.2s;
+}
+.btn-back:hover { color: var(--text); }
+
+/* Stats strip */
+.stats-strip {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.stat-block {
+  flex: 1;
+  padding: 18px 24px;
+  border-right: 1px solid var(--border);
+  text-align: center;
+}
+
+.stat-block:last-child { border-right: none; }
+
+.stat-num {
+  font-family: 'Cinzel', serif;
+  font-size: 1.5rem;
+  color: var(--gold-bright);
+  display: block;
+}
+
+.stat-lbl {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-top: 2px;
+  font-family: 'Cinzel', serif;
+}
+
+/* Sessions list */
+.sessions-container {
+  padding: 32px 48px 60px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.sessions-intro {
+  margin-bottom: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sessions-intro-text {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.session-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 12px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.session-card:hover { border-color: var(--border-gold); }
+
+.session-header {
+  display: flex;
+  align-items: center;
+  padding: 16px 20px;
+  cursor: pointer;
+  gap: 16px;
+}
+
+.session-num {
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  color: var(--gold-dim);
+  min-width: 28px;
+}
+
+.session-date {
+  font-family: 'Cinzel', serif;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  min-width: 120px;
+}
+
+.session-range {
+  flex: 1;
+  font-size: 0.95rem;
+  color: var(--text);
+}
+
+.session-range .surah-name { color: var(--gold); }
+
+.session-ayah-count {
+  font-family: 'Cinzel', serif;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  background: var(--surface2);
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.session-expand-icon {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  transition: transform 0.2s;
+}
+
+.session-card.expanded .session-expand-icon { transform: rotate(180deg); }
+
+.session-body {
+  display: none;
+  border-top: 1px solid var(--border);
+}
+
+.session-card.expanded .session-body { display: block; }
+
+/* Arabic + Translation display */
+.ayah-display {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.ayah-display:last-child { border-bottom: none; }
+
+.ayah-num-badge {
+  display: inline-block;
+  font-family: 'Scheherazade New', serif;
+  font-size: 0.85rem;
+  color: var(--gold-dim);
+  background: rgba(196,160,80,0.08);
+  border: 1px solid var(--border-gold);
+  border-radius: 50%;
+  width: 28px; height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+  direction: rtl;
+}
+
+.ayah-arabic {
+  font-family: 'Scheherazade New', serif;
+  font-size: 1.5rem;
+  direction: rtl;
+  text-align: right;
+  line-height: 2;
+  color: var(--text);
+  margin-bottom: 12px;
+  padding: 12px 16px;
+  background: rgba(160,110,40,0.05);
+  border-radius: 6px;
+  border-right: 3px solid var(--gold-dim);
+}
+
+.ayah-translation {
+  font-size: 0.95rem;
+  color: var(--text-dim);
+  line-height: 1.8;
+  font-style: italic;
+  padding: 0 4px;
+}
+
+.ayah-translation .trans-ref {
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  color: var(--gold-dim);
+  font-style: normal;
+  margin-right: 6px;
+}
+
+.tafsir-block {
+  margin-top: 10px;
+  padding: 12px 14px;
+  background: rgba(42,122,80,0.06);
+  border: 1px solid rgba(42,122,80,0.18);
+  border-radius: 6px;
+}
+
+.tafsir-label {
+  font-family: 'Cinzel', serif;
+  font-size: 0.65rem;
+  color: var(--green);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 6px;
+}
+
+.tafsir-text {
+  font-size: 0.88rem;
+  color: var(--text-dim);
+  line-height: 1.7;
+}
+
+.loading-ayah {
+  padding: 20px 24px;
+  text-align: center;
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Export section */
+.export-section {
+  position: sticky;
+  bottom: 0;
+  background: linear-gradient(0deg, var(--bg) 60%, transparent 100%);
+  padding: 20px 48px 32px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  z-index: 10;
+}
+
+.btn-export {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 28px;
+  border-radius: 10px;
+  border: 1px solid var(--border-gold);
+  background: var(--surface);
+  color: var(--text);
+  font-family: 'EB Garamond', serif;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+
+.btn-export:hover {
+  background: rgba(196,160,80,0.1);
+  border-color: var(--gold);
+  color: var(--gold-bright);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+
+.btn-export .icon { font-size: 1.1rem; }
+
+/* Animations */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 3px; }
+
+/* ===== IMPORT INSTRUCTIONS ===== */
+.import-section {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 24px 48px 40px;
+}
+
+.import-title {
+  font-family: 'Cinzel', serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+
+.import-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+}
+
+.import-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.import-card-icon {
+  font-size: 1.6rem;
+  margin-bottom: 8px;
+}
+
+.import-card-name {
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.import-steps {
+  list-style: none;
+  counter-reset: step;
+}
+
+.import-steps li {
+  counter-increment: step;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+  padding: 3px 0 3px 20px;
+  position: relative;
+}
+
+.import-steps li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 3px;
+  background: var(--gold-dim);
+  color: #fff;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  font-size: 0.65rem;
+  font-family: 'Cinzel', serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.import-tip {
+  margin-top: 14px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-style: italic;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* Download button - big and mobile-friendly */
+.download-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 20px 8px;
+}
+
+.btn-download-big {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #c8961e 0%, #e8c060 50%, #c8961e 100%);
+  background-size: 200% 100%;
+  color: #3a2200;
+  font-family: 'Cinzel', serif;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  border: none;
+  border-radius: 12px;
+  padding: 16px 32px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 20px rgba(200,150,30,0.35);
+  width: 100%;
+  max-width: 380px;
+  min-height: 56px;
+}
+
+.btn-download-big:hover:not(:disabled) {
+  background-position: 100% 0;
+  box-shadow: 0 6px 28px rgba(200,150,30,0.5);
+  transform: translateY(-1px);
+}
+
+.btn-download-big:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-download-big .dl-icon { font-size: 1.2rem; }
+
+.dl-subtitle {
+  margin-top: 8px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Animations */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 640px) {
+  /* Setup screen */
+  #setupScreen { padding: 24px 16px 32px; justify-content: flex-start; padding-top: 36px; }
+  .brand { margin-bottom: 20px; }
+  .brand-arabic { font-size: 2rem; }
+  .setup-card { padding: 22px 18px; width: 100%; }
+  .option-pill { padding: 6px 11px; font-size: 0.88rem; }
+  .custom-freq-row input { width: 46px; }
+
+  /* Results header */
+  .results-header { padding: 16px; flex-direction: column; gap: 10px; align-items: flex-start; }
+  .results-actions { display: none; } /* hide small header btn on mobile - big btn below handles it */
+
+  /* Stats */
+  .stats-strip { flex-wrap: wrap; }
+  .stat-block { min-width: 50%; padding: 14px 16px; }
+  .stat-num { font-size: 1.2rem; }
+
+  /* Sessions */
+  .sessions-container { padding: 16px 12px 32px; }
+  .session-date { display: none; }
+  .session-header { padding: 12px 14px; }
+
+  /* Import cards - stack on mobile */
+  .import-section { padding: 16px 12px 32px; }
+  .import-cards { grid-template-columns: 1fr; gap: 10px; }
+
+  /* Download button */
+  .download-hero { padding: 16px 16px 8px; }
+  .btn-download-big { font-size: 0.95rem; padding: 15px 24px; max-width: 100%; }
+}
+
+@media (min-width: 641px) and (max-width: 900px) {
+  .import-cards { grid-template-columns: 1fr 1fr; }
+  .sessions-container { padding: 24px 24px 40px; }
+  .results-header { padding: 24px 28px; }
+  .import-section { padding: 20px 28px 36px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== SCREEN 1: SETUP ===== -->
+<div id="setupScreen" class="screen active">
+  <div class="brand">
+    <span class="brand-arabic">خَتْمُ الْقُرْآن</span>
+    <div class="brand-title">Khatm al-Quran Planner</div>
+    <div class="brand-sub">Complete the Holy Quran, one session at a time</div>
+  </div>
+
+  <div class="setup-card">
+
+    <!-- Duration -->
+    <div class="form-section">
+      <label class="form-label">Duration</label>
+      <div class="pills-with-custom" id="durationGroup">
+        <div class="option-pill" data-val="1" onclick="selectOption(this,'duration')">1 mo</div>
+        <div class="option-pill" data-val="3" onclick="selectOption(this,'duration')">3 mo</div>
+        <div class="option-pill selected" data-val="6" onclick="selectOption(this,'duration')">6 mo</div>
+        <div class="option-pill" data-val="12" onclick="selectOption(this,'duration')">1 yr</div>
+        <div class="option-pill" data-val="24" onclick="selectOption(this,'duration')">2 yr</div>
+        <div class="custom-freq-row">
+          <input type="number" id="customDuration" min="1" max="120" placeholder="—" oninput="onCustomDuration(this)">
+          <span>mo custom</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Frequency -->
+    <div class="form-section">
+      <label class="form-label">Frequency</label>
+      <div class="pills-with-custom" id="freqGroup">
+        <div class="option-pill selected" data-val="7" onclick="selectOption(this,'freq')">Daily</div>
+        <div class="option-pill" data-val="5" onclick="selectOption(this,'freq')">5×/wk</div>
+        <div class="option-pill" data-val="3" onclick="selectOption(this,'freq')">3×/wk</div>
+        <div class="option-pill" data-val="2" onclick="selectOption(this,'freq')">2×/wk</div>
+        <div class="option-pill" data-val="1" onclick="selectOption(this,'freq')">1×/wk</div>
+        <div class="custom-freq-row">
+          <input type="number" id="customFreq" min="1" max="7" placeholder="—" oninput="onCustomFreq(this)">
+          <span>×/wk custom</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Start date -->
+    <div class="form-section">
+      <label class="form-label">Start date</label>
+      <input type="date" class="date-input" id="startDate">
+    </div>
+
+    <!-- Summary -->
+    <div class="summary-box" id="summaryBox">
+      <div class="summary-line">
+        <span class="summary-key">Total sessions</span>
+        <span class="summary-val" id="sumSessions">—</span>
+      </div>
+      <div class="summary-line">
+        <span class="summary-key">Ayahs per session</span>
+        <span class="summary-val" id="sumAyahs">—</span>
+      </div>
+      <div class="summary-line">
+        <span class="summary-key">Finish date</span>
+        <span class="summary-val" id="sumFinish">—</span>
+      </div>
+    </div>
+
+    <button class="btn-generate" id="generateBtn" onclick="generate()">
+      Generate My Quran Plan ✦
+    </button>
+  </div>
+</div>
+
+<!-- ===== SCREEN 2: LOADING ===== -->
+<div id="loadingScreen" class="screen">
+  <div class="loading-arabic">بِسْمِ اللَّهِ</div>
+  <div class="progress-track">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+  <div class="loading-status" id="loadingStatus">Preparing your plan…</div>
+</div>
+
+<!-- ===== SCREEN 3: RESULTS ===== -->
+<div id="resultsScreen" class="screen">
+  <div class="results-header">
+    <div>
+      <button class="btn-back" onclick="backToSetup()">← Back</button>
+      <div class="results-title">Your <span id="planTitle">—</span> Plan</div>
+    </div>
+    <div class="results-actions">
+      <button class="btn primary" onclick="downloadICS()">⬇ Download .ICS File</button>
+    </div>
+  </div>
+
+  <div class="stats-strip">
+    <div class="stat-block"><span class="stat-num" id="statSessions">—</span><span class="stat-lbl">Sessions</span></div>
+    <div class="stat-block"><span class="stat-num" id="statAyahs">—</span><span class="stat-lbl">Ayahs / Session</span></div>
+    <div class="stat-block"><span class="stat-num" id="statStart">—</span><span class="stat-lbl">Start Date</span></div>
+    <div class="stat-block"><span class="stat-num" id="statEnd">—</span><span class="stat-lbl">Finish Date</span></div>
+  </div>
+
+  <!-- Big download button -->
+  <div class="download-hero">
+    <button class="btn-download-big" id="downloadBtn" onclick="downloadICS()">
+      <span class="dl-icon">⬇</span> Download Calendar File (.ICS)
+    </button>
+    <div class="dl-subtitle">Works with Google Calendar, Apple Calendar &amp; Outlook</div>
+  </div>
+
+  <!-- Import instructions -->
+  <div class="import-section">
+    <div class="import-title">How to add to your calendar</div>
+    <div class="import-cards">
+
+      <div class="import-card">
+        <div class="import-card-icon">📱</div>
+        <div class="import-card-name">iPhone / iPad</div>
+        <ol class="import-steps">
+          <li>Tap Download above</li>
+          <li>Tap the downloaded file in your browser</li>
+          <li>Tap <em>"Add All"</em> when prompted</li>
+          <li>Opens directly in Apple Calendar ✓</li>
+        </ol>
+      </div>
+
+      <div class="import-card">
+        <div class="import-card-icon">🤖</div>
+        <div class="import-card-name">Android</div>
+        <ol class="import-steps">
+          <li>Tap Download above</li>
+          <li>Open your Files app, find the .ics file</li>
+          <li>Tap the file — it should open Google Calendar</li>
+          <li>Tap <em>"Import"</em> to confirm ✓</li>
+        </ol>
+      </div>
+
+      <div class="import-card">
+        <div class="import-card-icon">🖥️</div>
+        <div class="import-card-name">Google Calendar</div>
+        <ol class="import-steps">
+          <li>Download the .ics file</li>
+          <li>Go to <strong>calendar.google.com</strong></li>
+          <li>Click ⚙️ Settings → <em>Import &amp; Export</em></li>
+          <li>Upload the file and click <em>Import</em> ✓</li>
+        </ol>
+      </div>
+
+    </div>
+    <div class="import-tip">💡 Tip: On iPhone, make sure Safari is your browser — it handles .ics files best.</div>
+  </div>
+
+  <!-- Session list -->
+  <div class="sessions-container">
+    <div class="sessions-intro">
+      <div class="sessions-intro-text">Tap any session to preview its verses</div>
+    </div>
+    <div id="sessionsList"></div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// SURAH METADATA
+// ============================================================
+const SURAH_META = [
+  null,
+  {en:"Al-Fatihah",ar:"الفاتحة",ayahs:7},
+  {en:"Al-Baqarah",ar:"البقرة",ayahs:286},
+  {en:"Ali 'Imran",ar:"آل عمران",ayahs:200},
+  {en:"An-Nisa",ar:"النساء",ayahs:176},
+  {en:"Al-Ma'idah",ar:"المائدة",ayahs:120},
+  {en:"Al-An'am",ar:"الأنعام",ayahs:165},
+  {en:"Al-A'raf",ar:"الأعراف",ayahs:206},
+  {en:"Al-Anfal",ar:"الأنفال",ayahs:75},
+  {en:"At-Tawbah",ar:"التوبة",ayahs:129},
+  {en:"Yunus",ar:"يونس",ayahs:109},
+  {en:"Hud",ar:"هود",ayahs:123},
+  {en:"Yusuf",ar:"يوسف",ayahs:111},
+  {en:"Ar-Ra'd",ar:"الرعد",ayahs:43},
+  {en:"Ibrahim",ar:"إبراهيم",ayahs:52},
+  {en:"Al-Hijr",ar:"الحجر",ayahs:99},
+  {en:"An-Nahl",ar:"النحل",ayahs:128},
+  {en:"Al-Isra",ar:"الإسراء",ayahs:111},
+  {en:"Al-Kahf",ar:"الكهف",ayahs:110},
+  {en:"Maryam",ar:"مريم",ayahs:98},
+  {en:"Ta-Ha",ar:"طه",ayahs:135},
+  {en:"Al-Anbiya",ar:"الأنبياء",ayahs:112},
+  {en:"Al-Hajj",ar:"الحج",ayahs:78},
+  {en:"Al-Mu'minun",ar:"المؤمنون",ayahs:118},
+  {en:"An-Nur",ar:"النور",ayahs:64},
+  {en:"Al-Furqan",ar:"الفرقان",ayahs:77},
+  {en:"Ash-Shu'ara",ar:"الشعراء",ayahs:227},
+  {en:"An-Naml",ar:"النمل",ayahs:93},
+  {en:"Al-Qasas",ar:"القصص",ayahs:88},
+  {en:"Al-'Ankabut",ar:"العنكبوت",ayahs:69},
+  {en:"Ar-Rum",ar:"الروم",ayahs:60},
+  {en:"Luqman",ar:"لقمان",ayahs:34},
+  {en:"As-Sajdah",ar:"السجدة",ayahs:30},
+  {en:"Al-Ahzab",ar:"الأحزاب",ayahs:73},
+  {en:"Saba",ar:"سبأ",ayahs:54},
+  {en:"Fatir",ar:"فاطر",ayahs:45},
+  {en:"Ya-Sin",ar:"يس",ayahs:83},
+  {en:"As-Saffat",ar:"الصافات",ayahs:182},
+  {en:"Sad",ar:"ص",ayahs:88},
+  {en:"Az-Zumar",ar:"الزمر",ayahs:75},
+  {en:"Ghafir",ar:"غافر",ayahs:85},
+  {en:"Fussilat",ar:"فصلت",ayahs:54},
+  {en:"Ash-Shura",ar:"الشورى",ayahs:53},
+  {en:"Az-Zukhruf",ar:"الزخرف",ayahs:89},
+  {en:"Ad-Dukhan",ar:"الدخان",ayahs:59},
+  {en:"Al-Jathiyah",ar:"الجاثية",ayahs:37},
+  {en:"Al-Ahqaf",ar:"الأحقاف",ayahs:35},
+  {en:"Muhammad",ar:"محمد",ayahs:38},
+  {en:"Al-Fath",ar:"الفتح",ayahs:29},
+  {en:"Al-Hujurat",ar:"الحجرات",ayahs:18},
+  {en:"Qaf",ar:"ق",ayahs:45},
+  {en:"Adh-Dhariyat",ar:"الذاريات",ayahs:60},
+  {en:"At-Tur",ar:"الطور",ayahs:49},
+  {en:"An-Najm",ar:"النجم",ayahs:62},
+  {en:"Al-Qamar",ar:"القمر",ayahs:55},
+  {en:"Ar-Rahman",ar:"الرحمن",ayahs:78},
+  {en:"Al-Waqi'ah",ar:"الواقعة",ayahs:96},
+  {en:"Al-Hadid",ar:"الحديد",ayahs:29},
+  {en:"Al-Mujadila",ar:"المجادلة",ayahs:22},
+  {en:"Al-Hashr",ar:"الحشر",ayahs:24},
+  {en:"Al-Mumtahanah",ar:"الممتحنة",ayahs:13},
+  {en:"As-Saf",ar:"الصف",ayahs:14},
+  {en:"Al-Jumu'ah",ar:"الجمعة",ayahs:11},
+  {en:"Al-Munafiqun",ar:"المنافقون",ayahs:11},
+  {en:"At-Taghabun",ar:"التغابن",ayahs:18},
+  {en:"At-Talaq",ar:"الطلاق",ayahs:12},
+  {en:"At-Tahrim",ar:"التحريم",ayahs:12},
+  {en:"Al-Mulk",ar:"الملك",ayahs:30},
+  {en:"Al-Qalam",ar:"القلم",ayahs:52},
+  {en:"Al-Haqqah",ar:"الحاقة",ayahs:52},
+  {en:"Al-Ma'arij",ar:"المعارج",ayahs:44},
+  {en:"Nuh",ar:"نوح",ayahs:28},
+  {en:"Al-Jinn",ar:"الجن",ayahs:28},
+  {en:"Al-Muzzammil",ar:"المزمل",ayahs:20},
+  {en:"Al-Muddaththir",ar:"المدثر",ayahs:56},
+  {en:"Al-Qiyamah",ar:"القيامة",ayahs:40},
+  {en:"Al-Insan",ar:"الإنسان",ayahs:31},
+  {en:"Al-Mursalat",ar:"المرسلات",ayahs:50},
+  {en:"An-Naba",ar:"النبأ",ayahs:40},
+  {en:"An-Nazi'at",ar:"النازعات",ayahs:46},
+  {en:"Abasa",ar:"عبس",ayahs:42},
+  {en:"At-Takwir",ar:"التكوير",ayahs:29},
+  {en:"Al-Infitar",ar:"الانفطار",ayahs:19},
+  {en:"Al-Mutaffifin",ar:"المطففين",ayahs:36},
+  {en:"Al-Inshiqaq",ar:"الانشقاق",ayahs:25},
+  {en:"Al-Buruj",ar:"البروج",ayahs:22},
+  {en:"At-Tariq",ar:"الطارق",ayahs:17},
+  {en:"Al-A'la",ar:"الأعلى",ayahs:19},
+  {en:"Al-Ghashiyah",ar:"الغاشية",ayahs:26},
+  {en:"Al-Fajr",ar:"الفجر",ayahs:30},
+  {en:"Al-Balad",ar:"البلد",ayahs:20},
+  {en:"Ash-Shams",ar:"الشمس",ayahs:15},
+  {en:"Al-Layl",ar:"الليل",ayahs:21},
+  {en:"Ad-Duha",ar:"الضحى",ayahs:11},
+  {en:"Ash-Sharh",ar:"الشرح",ayahs:8},
+  {en:"At-Tin",ar:"التين",ayahs:8},
+  {en:"Al-'Alaq",ar:"العلق",ayahs:19},
+  {en:"Al-Qadr",ar:"القدر",ayahs:5},
+  {en:"Al-Bayyinah",ar:"البينة",ayahs:8},
+  {en:"Az-Zalzalah",ar:"الزلزلة",ayahs:8},
+  {en:"Al-'Adiyat",ar:"العاديات",ayahs:11},
+  {en:"Al-Qari'ah",ar:"القارعة",ayahs:11},
+  {en:"At-Takathur",ar:"التكاثر",ayahs:8},
+  {en:"Al-'Asr",ar:"العصر",ayahs:3},
+  {en:"Al-Humazah",ar:"الهمزة",ayahs:9},
+  {en:"Al-Fil",ar:"الفيل",ayahs:5},
+  {en:"Quraysh",ar:"قريش",ayahs:4},
+  {en:"Al-Ma'un",ar:"الماعون",ayahs:7},
+  {en:"Al-Kawthar",ar:"الكوثر",ayahs:3},
+  {en:"Al-Kafirun",ar:"الكافرون",ayahs:6},
+  {en:"An-Nasr",ar:"النصر",ayahs:3},
+  {en:"Al-Masad",ar:"المسد",ayahs:5},
+  {en:"Al-Ikhlas",ar:"الإخلاص",ayahs:4},
+  {en:"Al-Falaq",ar:"الفلق",ayahs:5},
+  {en:"An-Nas",ar:"الناس",ayahs:6}
+];
+
+// Build cumulative ayah index
+const SURAH_START = [0]; // SURAH_START[i] = global index of surah i's first ayah (1-based surah)
+let cumulative = 0;
+for (let i = 1; i <= 114; i++) {
+  SURAH_START[i] = cumulative;
+  cumulative += SURAH_META[i].ayahs;
+}
+const TOTAL_AYAHS = cumulative; // 6236
+
+// Given global ayah index (0-based), return {surah, ayah}
+function globalToRef(idx) {
+  for (let s = 114; s >= 1; s--) {
+    if (idx >= SURAH_START[s]) {
+      return { surah: s, ayah: idx - SURAH_START[s] + 1 };
+    }
+  }
+  return { surah: 1, ayah: 1 };
+}
+
+// ============================================================
+// APP STATE
+// ============================================================
+let state = {
+  duration: 6,
+  freq: 7,
+  startDate: null,
+
+  sessions: [],
+  sessionData: {} // cached API data per session
+};
+
+// ============================================================
+// SETUP INTERACTIONS
+// ============================================================
+function selectOption(el, group) {
+  document.querySelectorAll(`#${group}Group .option-pill`).forEach(p => p.classList.remove('selected'));
+  el.classList.add('selected');
+  if (group === 'duration') {
+    state.duration = parseInt(el.dataset.val);
+    document.getElementById('customDuration').value = '';
+  }
+  if (group === 'freq') {
+    state.freq = parseInt(el.dataset.val);
+    document.getElementById('customFreq').value = '';
+  }
+  updateSummary();
+}
+
+function onCustomFreq(el) {
+  const v = parseInt(el.value);
+  if (v >= 1 && v <= 7) {
+    state.freq = v;
+    document.querySelectorAll('#freqGroup .option-pill').forEach(p => p.classList.remove('selected'));
+    updateSummary();
+  }
+}
+
+function onCustomDuration(el) {
+  const v = parseInt(el.value);
+  if (v >= 1 && v <= 120) {
+    state.duration = v;
+    document.querySelectorAll('#durationGroup .option-pill').forEach(p => p.classList.remove('selected'));
+    updateSummary();
+  }
+}
+
+
+
+function updateSummary() {
+  const startVal = document.getElementById('startDate').value;
+  if (!startVal) return;
+  const start = new Date(startVal + 'T00:00:00');
+  const totalDays = state.duration * 30;
+  const totalSessions = Math.floor(totalDays * state.freq / 7);
+  const ayahsPerSession = Math.ceil(TOTAL_AYAHS / totalSessions);
+  const finishDate = new Date(start);
+  finishDate.setDate(finishDate.getDate() + totalDays);
+
+  document.getElementById('sumSessions').textContent = totalSessions.toLocaleString();
+  document.getElementById('sumAyahs').textContent = `~${ayahsPerSession}`;
+  document.getElementById('sumFinish').textContent = finishDate.toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'});
+  document.getElementById('summaryBox').classList.add('visible');
+}
+
+// Set today as default
+window.addEventListener('DOMContentLoaded', () => {
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth()+1).padStart(2,'0');
+  const dd = String(today.getDate()).padStart(2,'0');
+  document.getElementById('startDate').value = `${yyyy}-${mm}-${dd}`;
+  updateSummary();
+  document.getElementById('startDate').addEventListener('change', updateSummary);
+});
+
+// ============================================================
+// BUILD SESSION SCHEDULE
+// ============================================================
+function buildSessions(startDate, durationMonths, freqPerWeek) {
+  const sessions = [];
+  const totalDays = durationMonths * 30;
+  const totalSessions = Math.floor(totalDays * freqPerWeek / 7);
+  const ayahsPerSession = Math.ceil(TOTAL_AYAHS / totalSessions);
+
+  // Determine which days of week to use
+  // e.g. freq=3 → Mon, Wed, Fri (spread evenly)
+  const weekDays = spreadDays(freqPerWeek);
+
+  let currentDate = new Date(startDate);
+  let globalAyah = 0;
+  let sessionNum = 0;
+
+  while (globalAyah < TOTAL_AYAHS && sessionNum < totalSessions) {
+    // Find next session day
+    const targetDay = weekDays[sessionNum % freqPerWeek];
+    // Advance date to next occurrence of targetDay
+    if (sessionNum > 0) {
+      // Move to next week slot
+      const daysInCycle = Math.floor(sessionNum / freqPerWeek) * 7;
+      const dayInWeek = weekDays[sessionNum % freqPerWeek];
+      // Recalculate from start
+      const totalDaysOffset = Math.floor(sessionNum / freqPerWeek) * 7 + weekDays[sessionNum % freqPerWeek];
+      currentDate = new Date(startDate);
+      currentDate.setDate(currentDate.getDate() + totalDaysOffset);
+    }
+
+    const start = globalAyah;
+    const end = Math.min(globalAyah + ayahsPerSession - 1, TOTAL_AYAHS - 1);
+
+    const startRef = globalToRef(start);
+    const endRef = globalToRef(end);
+
+    sessions.push({
+      num: sessionNum + 1,
+      date: new Date(currentDate),
+      startGlobal: start,
+      endGlobal: end,
+      startRef,
+      endRef,
+      ayahCount: end - start + 1
+    });
+
+    globalAyah = end + 1;
+    sessionNum++;
+  }
+
+  return sessions;
+}
+
+function spreadDays(freq) {
+  // Returns array of day offsets within a week (0=Mon...6=Sun)
+  const slots = [];
+  for (let i = 0; i < freq; i++) {
+    slots.push(Math.round(i * 7 / freq));
+  }
+  return slots;
+}
+
+// ============================================================
+// GENERATE
+// ============================================================
+async function generate() {
+  const startVal = document.getElementById('startDate').value;
+  if (!startVal) { alert('Please select a start date.'); return; }
+
+  state.startDate = new Date(startVal + 'T00:00:00');
+  state.sessions = buildSessions(state.startDate, state.duration, state.freq);
+
+  showScreen('loadingScreen');
+
+  // We don't pre-fetch all API data (6236 ayahs) — we'll fetch per session on demand
+  // But let's fetch first session immediately so results show fast
+  await new Promise(r => setTimeout(r, 400));
+  setProgress(100, 'Plan ready!');
+  await new Promise(r => setTimeout(r, 300));
+
+  renderResults();
+  showScreen('resultsScreen');
+
+  // Track plan generation
+  gtag('event', 'plan_generated', {
+    duration_months: state.duration,
+    frequency_per_week: state.freq,
+    total_sessions: state.sessions.length
+  });
+}
+
+function setProgress(pct, msg) {
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('loadingStatus').textContent = msg;
+}
+
+// ============================================================
+// RENDER RESULTS
+// ============================================================
+function renderResults() {
+  const s = state.sessions;
+  const first = s[0], last = s[s.length - 1];
+
+  const durLabel = state.duration === 1 ? '1 Month' :
+    state.duration === 12 ? '1 Year' :
+    state.duration === 24 ? '2 Years' : `${state.duration} Month`;
+
+  document.getElementById('planTitle').textContent = `${durLabel} Quran Completion`;
+  document.getElementById('statSessions').textContent = s.length;
+  document.getElementById('statAyahs').textContent = `~${s[0].ayahCount}`;
+  document.getElementById('statStart').textContent = first.date.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  document.getElementById('statEnd').textContent = last.date.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+
+  const list = document.getElementById('sessionsList');
+  list.innerHTML = '';
+
+  s.forEach((session, i) => {
+    const card = document.createElement('div');
+    card.className = 'session-card';
+    card.id = `session-${i}`;
+
+    const startLabel = formatRef(session.startRef);
+    const endLabel = formatRef(session.endRef);
+    const rangeLabel = session.startRef.surah === session.endRef.surah
+      ? `<span class="surah-name">${SURAH_META[session.startRef.surah].en}</span> ${session.startRef.ayah}–${session.endRef.ayah}`
+      : `<span class="surah-name">${SURAH_META[session.startRef.surah].en}</span> ${session.startRef.ayah} → <span class="surah-name">${SURAH_META[session.endRef.surah].en}</span> ${session.endRef.ayah}`;
+
+    card.innerHTML = `
+      <div class="session-header" onclick="toggleSession(${i})">
+        <span class="session-num">#${String(session.num).padStart(3,'0')}</span>
+        <span class="session-date">${session.date.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}</span>
+        <span class="session-range">${rangeLabel}</span>
+        <span class="session-ayah-count">${session.ayahCount} ayahs</span>
+        <span class="session-expand-icon">▾</span>
+      </div>
+      <div class="session-body" id="session-body-${i}">
+        <div class="loading-ayah" id="session-loading-${i}">Fetching verses…</div>
+      </div>
+    `;
+    list.appendChild(card);
+  });
+}
+
+function formatRef(ref) {
+  return `${SURAH_META[ref.surah].en} (${ref.surah}:${ref.ayah})`;
+}
+
+// ============================================================
+// SESSION EXPAND / API FETCH
+// ============================================================
+async function toggleSession(i) {
+  const card = document.getElementById(`session-${i}`);
+  const body = document.getElementById(`session-body-${i}`);
+  const isExpanded = card.classList.contains('expanded');
+
+  // Collapse all others
+  document.querySelectorAll('.session-card.expanded').forEach(c => c.classList.remove('expanded'));
+
+  if (isExpanded) return;
+
+  card.classList.add('expanded');
+
+  // Already loaded?
+  if (state.sessionData[i]) {
+    renderSessionBody(i, state.sessionData[i]);
+    return;
+  }
+
+  // Fetch from API
+  document.getElementById(`session-loading-${i}`).textContent = 'Fetching verses from Quran Foundation…';
+
+  const session = state.sessions[i];
+  try {
+    const verses = await fetchSessionVerses(session);
+    state.sessionData[i] = verses;
+    renderSessionBody(i, verses);
+  } catch(e) {
+    document.getElementById(`session-loading-${i}`).textContent = 'Could not load verses. Check your internet connection.';
+  }
+}
+
+async function fetchSessionVerses(session) {
+  // Collect all surah:ayah pairs in this session
+  const pairs = [];
+  for (let g = session.startGlobal; g <= session.endGlobal; g++) {
+    pairs.push(globalToRef(g));
+  }
+
+  // Group by surah for efficient API calls
+  const bySurah = {};
+  pairs.forEach(p => {
+    if (!bySurah[p.surah]) bySurah[p.surah] = { min: p.ayah, max: p.ayah };
+    else {
+      bySurah[p.surah].min = Math.min(bySurah[p.surah].min, p.ayah);
+      bySurah[p.surah].max = Math.max(bySurah[p.surah].max, p.ayah);
+    }
+  });
+
+  const verses = [];
+  for (const [surahStr, range] of Object.entries(bySurah)) {
+    const surah = parseInt(surahStr);
+
+    // Fetch entire surah from alquran.cloud - Yusuf Ali English (en.yusufali) + Arabic (quran-uthmani)
+    const [arabicRes, transRes] = await Promise.all([
+      fetch(`https://api.alquran.cloud/v1/surah/${surah}/quran-uthmani`),
+      fetch(`https://api.alquran.cloud/v1/surah/${surah}/en.yusufali`)
+    ]);
+
+    if (!arabicRes.ok || !transRes.ok) throw new Error('API error');
+    const arabicData = await arabicRes.json();
+    const transData = await transRes.json();
+
+    const arabicAyahs = arabicData.data?.ayahs || [];
+    const transAyahs = transData.data?.ayahs || [];
+
+    for (let i = range.min - 1; i < range.max; i++) {
+      const arabicAyah = arabicAyahs[i];
+      const transAyah = transAyahs[i];
+      if (!arabicAyah) continue;
+      const ayahNum = arabicAyah.numberInSurah;
+      verses.push({
+        surah,
+        ayah: ayahNum,
+        arabic: arabicAyah.text || '',
+        trans: transAyah?.text || ''
+      });
+    }
+  }
+
+  // Sort by global order
+  verses.sort((a, b) => {
+    const ga = SURAH_START[a.surah] + a.ayah - 1;
+    const gb = SURAH_START[b.surah] + b.ayah - 1;
+    return ga - gb;
+  });
+
+  return verses;
+}
+
+function renderSessionBody(i, verses) {
+  const body = document.getElementById(`session-body-${i}`);
+  body.innerHTML = '';
+
+  verses.forEach(v => {
+    const div = document.createElement('div');
+    div.className = 'ayah-display';
+
+    const transClean = v.trans.replace(/<[^>]+>/g,'').trim();
+
+    div.innerHTML = `
+      <div class="ayah-num-badge">${v.ayah}</div>
+      <div class="ayah-arabic">${v.arabic}</div>
+      <div class="ayah-translation">
+        <span class="trans-ref">${SURAH_META[v.surah].en} ${v.surah}:${v.ayah}</span>
+        ${transClean}
+      </div>
+    `;
+    body.appendChild(div);
+  });
+}
+
+// ============================================================
+// ICS GENERATION
+// ============================================================
+function formatICSDate(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth()+1).padStart(2,'0');
+  const d = String(date.getDate()).padStart(2,'0');
+  return `${y}${m}${d}`;
+}
+
+function escapeICS(str) {
+  return str
+    .replace(/\\/g, '\\\\')
+    .replace(/;/g, '\\;')
+    .replace(/,/g, '\\,')
+    .replace(/\n/g, '\\n')
+    .replace(/\r/g, '');
+}
+
+function foldICSLine(line) {
+  // ICS lines must be max 75 chars, fold with CRLF + space
+  const chunks = [];
+  while (line.length > 75) {
+    chunks.push(line.substring(0, 75));
+    line = ' ' + line.substring(75);
+  }
+  chunks.push(line);
+  return chunks.join('\r\n');
+}
+
+async function downloadICS() {
+  // Disable all download buttons
+  const allBtns = document.querySelectorAll('#downloadBtn, .results-actions .btn.primary');
+  allBtns.forEach(b => { b.textContent = '⏳ Generating…'; b.disabled = true; });
+
+  // Fetch all session data if not cached (do it for all sessions)
+  const total = state.sessions.length;
+  for (let i = 0; i < total; i++) {
+    if (!state.sessionData[i]) {
+      btn.querySelector ? null : null;
+      try {
+        const verses = await fetchSessionVerses(state.sessions[i]);
+        state.sessionData[i] = verses;
+      } catch(e) {
+        // Skip if API fails
+        state.sessionData[i] = [];
+      }
+    }
+  }
+
+  const lines = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Khatm al-Quran Planner//EN',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    'X-WR-CALNAME:Quran Completion Plan',
+    'X-WR-CALDESC:Your personalized Quran reading plan'
+  ];
+
+  state.sessions.forEach((session, i) => {
+    const verses = state.sessionData[i] || [];
+    const dateStr = formatICSDate(session.date);
+    const uid = `quran-session-${i+1}-${dateStr}@khatm`;
+
+    // Build description with real newlines (escapeICS will convert to \n for ICS)
+    let desc = `Session ${session.num} of ${state.sessions.length}\n`;
+    desc += `${SURAH_META[session.startRef.surah].en} ${session.startRef.ayah}`;
+    if (session.startRef.surah !== session.endRef.surah || session.startRef.ayah !== session.endRef.ayah) {
+      desc += ` to ${SURAH_META[session.endRef.surah].en} ${session.endRef.ayah}`;
+    }
+    desc += ` (${session.ayahCount} ayahs)\n\n`;
+
+    verses.forEach(v => {
+      desc += `[${v.surah}:${v.ayah}]\n`;
+      if (v.arabic) desc += `${v.arabic}\n`;
+      const transClean = v.trans.replace(/<[^>]+>/g,'').trim();
+      desc += `${transClean}\n\n`;
+    });
+
+    const summary = `Quran - ${SURAH_META[session.startRef.surah].en} ${session.startRef.ayah}${session.startRef.surah !== session.endRef.surah ? ` to ${SURAH_META[session.endRef.surah].en} ${session.endRef.ayah}` : `-${session.endRef.ayah}`}`;
+
+    lines.push('BEGIN:VEVENT');
+    lines.push(foldICSLine(`UID:${uid}`));
+    lines.push(`DTSTART;VALUE=DATE:${dateStr}`);
+    lines.push(`DTEND;VALUE=DATE:${dateStr}`);
+    lines.push(foldICSLine(`SUMMARY:${escapeICS(summary)}`));
+    lines.push(foldICSLine(`DESCRIPTION:${escapeICS(desc)}`));
+    lines.push('STATUS:CONFIRMED');
+    lines.push('TRANSP:TRANSPARENT');
+    lines.push(`SEQUENCE:${i}`);
+    lines.push('END:VEVENT');
+  });
+
+  lines.push('END:VCALENDAR');
+
+  const icsContent = lines.join('\r\n') + '\r\n';
+  const blob = new Blob(['\ufeff' + icsContent], { type: 'text/calendar;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'quran-completion-plan.ics';
+  a.click();
+
+  // Track download
+  gtag('event', 'ics_downloaded', {
+    total_sessions: state.sessions.length,
+    duration_months: state.duration,
+    frequency_per_week: state.freq
+  });
+  URL.revokeObjectURL(url);
+
+  const bigBtn = document.getElementById('downloadBtn');
+  if (bigBtn) { bigBtn.innerHTML = '<span class="dl-icon">⬇</span> Download Calendar File (.ICS)'; bigBtn.disabled = false; }
+  const headerBtn = document.querySelector('.results-actions .btn.primary');
+  if (headerBtn) { headerBtn.textContent = '⬇ Download .ICS File'; headerBtn.disabled = false; }
+}
+
+// ============================================================
+// SCREEN MANAGEMENT
+// ============================================================
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById(id);
+  el.classList.add('active');
+  el.scrollTop = 0;
+}
+
+function backToSetup() {
+  showScreen('setupScreen');
+}
+</script>
+</body>
+</html>
