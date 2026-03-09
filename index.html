@@ -1525,23 +1525,36 @@ function foldICSLine(line) {
 }
 
 async function downloadICS() {
-  // Disable all download buttons
-  const allBtns = document.querySelectorAll('#downloadBtn, .results-actions .btn.primary');
-  allBtns.forEach(b => { b.textContent = '⏳ Generating…'; b.disabled = true; });
+  const bigBtn = document.getElementById('downloadBtn');
+  const headerBtn = document.querySelector('.results-actions .btn.primary');
 
-  // Fetch all session data if not cached (do it for all sessions)
+  const setBtn = (html, disabled) => {
+    if (bigBtn) { bigBtn.innerHTML = html; bigBtn.disabled = disabled; }
+    if (headerBtn) { headerBtn.textContent = disabled ? '⏳ Generating…' : '⬇ Download .ICS File'; headerBtn.disabled = disabled; }
+  };
+
+  setBtn('<span class="dl-icon">⏳</span> Generating… (0%)', true);
+
+  // Fetch only sessions not yet cached, with progress updates
   const total = state.sessions.length;
-  for (let i = 0; i < total; i++) {
-    if (!state.sessionData[i]) {
-      btn.querySelector ? null : null;
-      try {
-        const verses = await fetchSessionVerses(state.sessions[i]);
-        state.sessionData[i] = verses;
-      } catch(e) {
-        // Skip if API fails
-        state.sessionData[i] = [];
+  let fetched = 0;
+  const batchSize = 5; // fetch 5 at a time in parallel
+
+  for (let i = 0; i < total; i += batchSize) {
+    const batch = [];
+    for (let j = i; j < Math.min(i + batchSize, total); j++) {
+      if (!state.sessionData[j]) {
+        batch.push(
+          fetchSessionVerses(state.sessions[j])
+            .then(v => { state.sessionData[j] = v; })
+            .catch(() => { state.sessionData[j] = []; })
+        );
       }
     }
+    await Promise.all(batch);
+    fetched = Math.min(i + batchSize, total);
+    const pct = Math.round((fetched / total) * 100);
+    setBtn(`<span class="dl-icon">⏳</span> Generating… (${pct}%)`, true);
   }
 
   const lines = [
@@ -1559,7 +1572,6 @@ async function downloadICS() {
     const dateStr = formatICSDate(session.date);
     const uid = `quran-session-${i+1}-${dateStr}@khatm`;
 
-    // Build description with real newlines (escapeICS will convert to \n for ICS)
     let desc = `Session ${session.num} of ${state.sessions.length}\n`;
     desc += `${SURAH_META[session.startRef.surah].en} ${session.startRef.ayah}`;
     if (session.startRef.surah !== session.endRef.surah || session.startRef.ayah !== session.endRef.ayah) {
@@ -1597,19 +1609,16 @@ async function downloadICS() {
   a.href = url;
   a.download = 'quran-completion-plan.ics';
   a.click();
+  URL.revokeObjectURL(url);
 
-  // Track download
   gtag('event', 'ics_downloaded', {
     total_sessions: state.sessions.length,
     duration_months: state.duration,
     frequency_per_week: state.freq
   });
-  URL.revokeObjectURL(url);
 
-  const bigBtn = document.getElementById('downloadBtn');
-  if (bigBtn) { bigBtn.innerHTML = '<span class="dl-icon">⬇</span> Download Calendar File (.ICS)'; bigBtn.disabled = false; }
-  const headerBtn = document.querySelector('.results-actions .btn.primary');
-  if (headerBtn) { headerBtn.textContent = '⬇ Download .ICS File'; headerBtn.disabled = false; }
+  setBtn('<span class="dl-icon">✓</span> Downloaded! Tap again to re-download', false);
+  setTimeout(() => setBtn('<span class="dl-icon">⬇</span> Download Calendar File (.ICS)', false), 4000);
 }
 
 // ============================================================
