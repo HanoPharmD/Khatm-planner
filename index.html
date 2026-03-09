@@ -885,11 +885,10 @@ body::before {
     <div class="form-section">
       <label class="form-label">Duration</label>
       <div class="pills-with-custom" id="durationGroup">
-        <div class="option-pill" data-val="1" onclick="selectOption(this,'duration')">1 mo</div>
         <div class="option-pill" data-val="3" onclick="selectOption(this,'duration')">3 mo</div>
         <div class="option-pill selected" data-val="6" onclick="selectOption(this,'duration')">6 mo</div>
+        <div class="option-pill" data-val="9" onclick="selectOption(this,'duration')">9 mo</div>
         <div class="option-pill" data-val="12" onclick="selectOption(this,'duration')">1 yr</div>
-        <div class="option-pill" data-val="24" onclick="selectOption(this,'duration')">2 yr</div>
         <div class="custom-freq-row">
           <input type="number" id="customDuration" min="1" max="120" placeholder="—" oninput="onCustomDuration(this)">
           <span>mo custom</span>
@@ -1413,9 +1412,8 @@ function renderResults() {
   const s = state.sessions;
   const first = s[0], last = s[s.length - 1];
 
-  const durLabel = state.duration === 1 ? '1 Month' :
-    state.duration === 12 ? '1 Year' :
-    state.duration === 24 ? '2 Years' : `${state.duration} Month`;
+  const durLabel = state.duration === 12 ? '1 Year' :
+    state.duration % 12 === 0 ? `${state.duration/12} Year` : `${state.duration} Month`;
 
   document.getElementById('planTitle').textContent = `${durLabel} Quran Completion`;
   document.getElementById('statSessions').textContent = s.length;
