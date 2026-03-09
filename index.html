@@ -1414,6 +1414,37 @@ async function toggleSession(i) {
   }
 }
 
+// Surah-level cache so Al-Baqarah etc. are only fetched once across all sessions
+const surahCache = {};
+
+async function fetchSurah(surah) {
+  if (surahCache[surah]) return surahCache[surah];
+
+  const [arabicRes, transRes] = await Promise.all([
+    fetch(`https://api.alquran.cloud/v1/surah/${surah}/quran-uthmani`),
+    fetch(`https://api.alquran.cloud/v1/surah/${surah}/en.yusufali`)
+  ]);
+
+  if (!arabicRes.ok || !transRes.ok) throw new Error(`API error fetching surah ${surah}`);
+  const arabicData = await arabicRes.json();
+  const transData = await transRes.json();
+
+  const arabicAyahs = arabicData.data?.ayahs || [];
+  const transAyahs = transData.data?.ayahs || [];
+
+  // Store as map: ayahNum -> {arabic, trans}
+  const ayahMap = {};
+  arabicAyahs.forEach((a, idx) => {
+    ayahMap[a.numberInSurah] = {
+      arabic: a.text || '',
+      trans: transAyahs[idx]?.text || ''
+    };
+  });
+
+  surahCache[surah] = ayahMap;
+  return ayahMap;
+}
+
 async function fetchSessionVerses(session) {
   // Collect all surah:ayah pairs in this session
   const pairs = [];
@@ -1421,7 +1452,7 @@ async function fetchSessionVerses(session) {
     pairs.push(globalToRef(g));
   }
 
-  // Group by surah for efficient API calls
+  // Group by surah
   const bySurah = {};
   pairs.forEach(p => {
     if (!bySurah[p.surah]) bySurah[p.surah] = { min: p.ayah, max: p.ayah };
@@ -1434,30 +1465,16 @@ async function fetchSessionVerses(session) {
   const verses = [];
   for (const [surahStr, range] of Object.entries(bySurah)) {
     const surah = parseInt(surahStr);
+    const ayahMap = await fetchSurah(surah);
 
-    // Fetch entire surah from alquran.cloud - Yusuf Ali English (en.yusufali) + Arabic (quran-uthmani)
-    const [arabicRes, transRes] = await Promise.all([
-      fetch(`https://api.alquran.cloud/v1/surah/${surah}/quran-uthmani`),
-      fetch(`https://api.alquran.cloud/v1/surah/${surah}/en.yusufali`)
-    ]);
-
-    if (!arabicRes.ok || !transRes.ok) throw new Error('API error');
-    const arabicData = await arabicRes.json();
-    const transData = await transRes.json();
-
-    const arabicAyahs = arabicData.data?.ayahs || [];
-    const transAyahs = transData.data?.ayahs || [];
-
-    for (let i = range.min - 1; i < range.max; i++) {
-      const arabicAyah = arabicAyahs[i];
-      const transAyah = transAyahs[i];
-      if (!arabicAyah) continue;
-      const ayahNum = arabicAyah.numberInSurah;
+    for (let ayahNum = range.min; ayahNum <= range.max; ayahNum++) {
+      const ayah = ayahMap[ayahNum];
+      if (!ayah) continue;
       verses.push({
         surah,
         ayah: ayahNum,
-        arabic: arabicAyah.text || '',
-        trans: transAyah?.text || ''
+        arabic: ayah.arabic,
+        trans: ayah.trans
       });
     }
   }
@@ -1607,7 +1624,9 @@ async function downloadICS() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'quran-completion-plan.ics';
+  const startStr = state.startDate.toISOString().slice(0,10); // e.g. 2026-03-10
+  const durLabel = state.duration >= 12 ? `${state.duration/12}yr` : `${state.duration}mo`;
+  a.download = `quran-plan-${startStr}-${durLabel}.ics`;
   a.click();
   URL.revokeObjectURL(url);
 
