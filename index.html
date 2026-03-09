@@ -809,6 +809,19 @@ body::before {
   font-style: italic;
 }
 
+.dl-notice {
+  margin-top: 12px;
+  max-width: 380px;
+  background: rgba(180,130,40,0.08);
+  border: 1px solid rgba(180,130,40,0.2);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+  text-align: center;
+}
+
 /* Animations */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(20px); }
@@ -962,6 +975,9 @@ body::before {
       <span class="dl-icon">⬇</span> Download Calendar File (.ICS)
     </button>
     <div class="dl-subtitle">Works with Google Calendar, Apple Calendar &amp; Outlook</div>
+    <div class="dl-notice">
+      ⚠️ Calendar apps like Google Calendar may only show the first ~15 verses in the event description due to their text limits. Each event includes a <strong>link to read the full session</strong> in your browser with all verses, Arabic text, and translation.
+    </div>
   </div>
 
   <!-- Import instructions -->
@@ -1230,6 +1246,11 @@ window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('startDate').value = `${yyyy}-${mm}-${dd}`;
   updateSummary();
   document.getElementById('startDate').addEventListener('change', updateSummary);
+
+  // Check if a plan is encoded in the URL (e.g. from a calendar event link)
+  if (window.location.hash.startsWith('#plan/')) {
+    loadFromURL();
+  }
 });
 
 // ============================================================
@@ -1296,8 +1317,64 @@ function spreadDays(freq) {
 }
 
 // ============================================================
-// GENERATE
+// URL PLAN ENCODING / DECODING
 // ============================================================
+function encodePlanURL(duration, freq, startDate, sessionNum) {
+  const d = startDate.toISOString().slice(0, 10); // 2026-03-10
+  const hash = `#plan/${duration}/${freq}/${d}${sessionNum ? `/s${sessionNum}` : ''}`;
+  return `https://quran-khatm.vercel.app/${hash}`;
+}
+
+function parsePlanURL() {
+  const hash = window.location.hash; // e.g. #plan/6/7/2026-03-10/s3
+  if (!hash.startsWith('#plan/')) return null;
+  const parts = hash.replace('#plan/', '').split('/');
+  if (parts.length < 3) return null;
+  const duration = parseInt(parts[0]);
+  const freq = parseInt(parts[1]);
+  const dateStr = parts[2];
+  const sessionMatch = parts[3] ? parts[3].match(/^s(\d+)$/) : null;
+  const sessionNum = sessionMatch ? parseInt(sessionMatch[1]) : null;
+  if (isNaN(duration) || isNaN(freq) || !dateStr) return null;
+  return { duration, freq, dateStr, sessionNum };
+}
+
+async function loadFromURL() {
+  const params = parsePlanURL();
+  if (!params) return;
+
+  // Restore state
+  state.duration = params.duration;
+  state.freq = params.freq;
+  state.startDate = new Date(params.dateStr + 'T00:00:00');
+
+  // Update UI pills to match
+  document.querySelectorAll('#durationGroup .option-pill').forEach(p => {
+    p.classList.toggle('selected', parseInt(p.dataset.val) === state.duration);
+  });
+  document.querySelectorAll('#freqGroup .option-pill').forEach(p => {
+    p.classList.toggle('selected', parseInt(p.dataset.val) === state.freq);
+  });
+  document.getElementById('startDate').value = params.dateStr;
+
+  // Build and show plan
+  state.sessions = buildSessions(state.startDate, state.duration, state.freq);
+  renderResults();
+  showScreen('resultsScreen');
+
+  // Jump to specific session if provided
+  if (params.sessionNum) {
+    const idx = params.sessionNum - 1;
+    await new Promise(r => setTimeout(r, 300)); // let DOM settle
+    const card = document.getElementById(`session-${idx}`);
+    if (card) {
+      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      toggleSession(idx);
+    }
+  }
+}
+
+
 async function generate() {
   const startVal = document.getElementById('startDate').value;
   if (!startVal) { alert('Please select a start date.'); return; }
@@ -1305,10 +1382,11 @@ async function generate() {
   state.startDate = new Date(startVal + 'T00:00:00');
   state.sessions = buildSessions(state.startDate, state.duration, state.freq);
 
+  // Write plan to URL so it's shareable / restorable from calendar links
+  history.replaceState(null, '', `#plan/${state.duration}/${state.freq}/${startVal}`);
+
   showScreen('loadingScreen');
 
-  // We don't pre-fetch all API data (6236 ayahs) — we'll fetch per session on demand
-  // But let's fetch first session immediately so results show fast
   await new Promise(r => setTimeout(r, 400));
   setProgress(100, 'Plan ready!');
   await new Promise(r => setTimeout(r, 300));
@@ -1316,7 +1394,6 @@ async function generate() {
   renderResults();
   showScreen('resultsScreen');
 
-  // Track plan generation
   gtag('event', 'plan_generated', {
     duration_months: state.duration,
     frequency_per_week: state.freq,
@@ -1588,21 +1665,39 @@ async function downloadICS() {
     const verses = state.sessionData[i] || [];
     const dateStr = formatICSDate(session.date);
     const uid = `quran-session-${i+1}-${dateStr}@khatm`;
+    const startVal = state.startDate.toISOString().slice(0,10);
 
-    let desc = `Session ${session.num} of ${state.sessions.length}\n`;
-    desc += `${SURAH_META[session.startRef.surah].en} ${session.startRef.ayah}`;
+    // Deep link for this specific session
+    const sessionLink = `https://quran-khatm.vercel.app/#plan/${state.duration}/${state.freq}/${startVal}/s${session.num}`;
+
+    // Header info
+    let header = `Session ${session.num} of ${state.sessions.length}\n`;
+    header += `${SURAH_META[session.startRef.surah].en} ${session.startRef.ayah}`;
     if (session.startRef.surah !== session.endRef.surah || session.startRef.ayah !== session.endRef.ayah) {
-      desc += ` to ${SURAH_META[session.endRef.surah].en} ${session.endRef.ayah}`;
+      header += ` to ${SURAH_META[session.endRef.surah].en} ${session.endRef.ayah}`;
     }
-    desc += ` (${session.ayahCount} ayahs)\n\n`;
+    header += ` (${session.ayahCount} ayahs)\n`;
+    header += `\n📖 Read full session: ${sessionLink}\n\n`;
 
-    verses.forEach(v => {
-      desc += `[${v.surah}:${v.ayah}]\n`;
-      if (v.arabic) desc += `${v.arabic}\n`;
-      const transClean = v.trans.replace(/<[^>]+>/g,'').trim();
-      desc += `${transClean}\n\n`;
-    });
+    // Add as many verses as fit within ~3500 chars total
+    const CHAR_LIMIT = 3500;
+    let verseText = '';
+    for (const v of verses) {
+      const ref = `[${v.surah}:${v.ayah}]\n`;
+      const arabic = v.arabic ? `${v.arabic}\n` : '';
+      const trans = `${v.trans.replace(/<[^>]+>/g,'').trim()}\n\n`;
+      const chunk = ref + arabic + trans;
+      if (header.length + verseText.length + chunk.length > CHAR_LIMIT) break;
+      verseText += chunk;
+    }
 
+    const verseCount = verseText.split(/\[\d+:\d+\]/).length - 1;
+    const remaining = session.ayahCount - verseCount;
+    if (remaining > 0) {
+      verseText += `... +${remaining} more verses at link above`;
+    }
+
+    const desc = header + verseText;
     const summary = `Quran - ${SURAH_META[session.startRef.surah].en} ${session.startRef.ayah}${session.startRef.surah !== session.endRef.surah ? ` to ${SURAH_META[session.endRef.surah].en} ${session.endRef.ayah}` : `-${session.endRef.ayah}`}`;
 
     lines.push('BEGIN:VEVENT');
@@ -1611,6 +1706,7 @@ async function downloadICS() {
     lines.push(`DTEND;VALUE=DATE:${dateStr}`);
     lines.push(foldICSLine(`SUMMARY:${escapeICS(summary)}`));
     lines.push(foldICSLine(`DESCRIPTION:${escapeICS(desc)}`));
+    lines.push(foldICSLine(`URL:${sessionLink}`));
     lines.push('STATUS:CONFIRMED');
     lines.push('TRANSP:TRANSPARENT');
     lines.push(`SEQUENCE:${i}`);
